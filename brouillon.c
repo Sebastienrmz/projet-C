@@ -140,36 +140,8 @@ void bmp8_threshold(t_bmp8 *img, int threshold) {
 
 
 void bmp8_applyFilter(t_bmp8 *img, float **kernel, int kernelSize) {
-    int width  = img->width;
-    int height = img->height;
-    int n = (kernelSize - 1) / 2;
-
-    unsigned char *old = malloc(img->dataSize);
-    memcpy(old, img->data, img->dataSize);
-
-    for (int y = n; y < height - n; ++y) {
-      for (int x = n; x < width  - n; ++x) {
-        float accum = 0.0;
-
-        for (int i = -n; i <= n; ++i) {
-          for (int j = -n; j <= n; ++j) {
-            unsigned char val = old[(y+i)*width + (x+j)];
-            float k = kernel[i + n][ j + n ];
-            accum += val * k;
-          }
-        }
-
-        int out = (int)(accum + 0.5f);
-        if (out < 0)   out = 0;
-        if (out > 255) out = 255;
-        img->data[y*width + x] = (unsigned char) out;
-      }
-    }
-
-
-    free(old);
+ //a faire
 }
-
 
 
 
@@ -178,13 +150,11 @@ t_pixel ** bmp24_allocateDataPixels(int width, int height) {
     t_pixel **rows = malloc(sizeof(t_pixel*) * height);
     if (!rows) return NULL;
 
-
     t_pixel *block = malloc(sizeof(t_pixel) * width * height);
     if (!block) {
         free(rows);
         return NULL;
     }
-
 
     for (int y = 0; y < height; ++y) {
         rows[y] = block + (y * width);
