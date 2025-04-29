@@ -85,7 +85,7 @@ void bmp8_printInfo(t_bmp8 * img) {
 
 
 
-
+/*
 void bmp8_negative(t_bmp8 *img) {
     if (img == NULL || img->data == NULL) {
         printf("Error: image or data is NULL\n");
@@ -209,15 +209,11 @@ void bmp24_free(t_bmp24 *img) {
 
 
 
-
-#include "bmp24.h"
-
 void bmp24_readPixelValue(t_bmp24 *image, int x, int y, FILE *file) {
 
     uint32_t rowSize = image->width * 3;  //3 octets par pixel
     uint32_t lineIndex  = (image->height - 1 - y) * rowSize;
     uint32_t byteOffset = BITMAP_OFFSET + lineIndex + x * 3;
-
 
     file_rawRead(byteOffset,&image->data[y][x],sizeof(t_pixel),1,file);
 }
@@ -255,3 +251,4 @@ void bmp24_writePixelData(t_bmp24 *image, FILE *file) {
         }
     }
 }
+*/
