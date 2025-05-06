@@ -1,4 +1,4 @@
-/Users/scottalexisngoummela/CLionProjects/projet-C/cmake-build-debug/CMakeFiles/projet_C.dir
-/Users/scottalexisngoummela/CLionProjects/projet-C/cmake-build-debug/CMakeFiles/main_scott.dir
-/Users/scottalexisngoummela/CLionProjects/projet-C/cmake-build-debug/CMakeFiles/edit_cache.dir
-/Users/scottalexisngoummela/CLionProjects/projet-C/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+C:/Users/Python.LAPTOP-AU9NC9ED/CLionProjects/projet-C/cmake-build-debug/CMakeFiles/projet_C.dir
+C:/Users/Python.LAPTOP-AU9NC9ED/CLionProjects/projet-C/cmake-build-debug/CMakeFiles/main_scott.dir
+C:/Users/Python.LAPTOP-AU9NC9ED/CLionProjects/projet-C/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/Python.LAPTOP-AU9NC9ED/CLionProjects/projet-C/cmake-build-debug/CMakeFiles/rebuild_cache.dir
