@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <errno.h>
 #include "bmp8.h"
 
 
@@ -10,6 +11,7 @@ t_bmp8 * bmp8_loadImage(const char * filename){
 
     if(fp == NULL){      //je verifie si le fichier s'ouvre bien
     	printf("Error opening file\n");
+
         return NULL;
         }
 
@@ -42,10 +44,11 @@ t_bmp8 * bmp8_loadImage(const char * filename){
 
 
 
-void bmp8_saveImage(const char * filename, t_bmp8 * img) {
+void bmp8_saveImage(t_bmp8 * img, const char * filename) {
     FILE *fp = fopen(filename, "wb");
     if (fp == NULL) {
         printf("Error opening file\n");
+        printf("fopen failed, errno = %d\n", errno);
         return;
     }
 
