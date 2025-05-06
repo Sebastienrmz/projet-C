@@ -172,5 +172,17 @@ void bmp8_applyFilter(t_bmp8 *img, float **kernel, int kernelSize) {
             if (sum < 0) sum = 0;
             if (sum > 255) sum = 255;
 
-            tempData[y]()
+            tempData[y * width + x] = (unsigned char)sum;
+        }
+    }
+
+    //Copier le résultat dans l’image d’origine
+    for (int y = 1; y < height - 1; y++) {
+        for (int x = 1; x < width - 1; x++) {
+            img->data[y * width + x] = tempData[y * width + x];
+        }
+    }
+
+    free(tempData);
+}
 
