@@ -1,5 +1,7 @@
 #ifndef BMP8_H
 #define BMP8_H
+#include <stdio.h>
+#include <stdlib.h>
 
 typedef struct {
     unsigned char header[54];

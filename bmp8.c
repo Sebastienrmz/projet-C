@@ -1,46 +1,56 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <errno.h>
 #include "bmp8.h"
 
 
-t_bmp8 * bmp8_loadImage(const char * filename){
-
-	FILE * fp;             //j'ouvre le fichier en binaire
-    fp = fopen(filename, "rb");
-
-    if(fp == NULL){      //je verifie si le fichier s'ouvre bien
-    	printf("Error opening file\n");
-
+t_bmp8 * bmp8_loadImage(const char * filename) {
+    FILE *fp = fopen(filename, "rb");
+    if (fp == NULL) {
+        printf("Error opening file\n");
         return NULL;
+    }
+
+    t_bmp8 *mybtm = (t_bmp8 *)malloc(sizeof(t_bmp8));
+    if (mybtm == NULL) {
+        printf("Error allocating memory\n");
+        fclose(fp);
+        return NULL;
+    }
+
+    fread(mybtm->header, sizeof(unsigned char), 54, fp);
+
+    mybtm->width = *(unsigned int *)(mybtm->header + 18);
+    mybtm->height = *(unsigned int *)(mybtm->header + 22);
+    mybtm->colorDepth = *(unsigned short *)(mybtm->header + 28);
+    mybtm->dataSize = *(unsigned int *)(mybtm->header + 34);
+
+    if (mybtm->colorDepth == 8) {
+        fread(mybtm->colorTable, sizeof(unsigned char), 1024, fp);
+
+        // Si dataSize vaut 0, on le calcule manuellement
+        if (mybtm->dataSize == 0) {
+            mybtm->dataSize = mybtm->width * mybtm->height;
         }
 
-    t_bmp8 * mybtm = (t_bmp8*)malloc(sizeof(t_bmp8)); //j'alloue de la mémoire pour ma structure bmp et verifie si pas d'erreur
-    if(mybtm == NULL){
-    	printf("Error allocating memory\n");
-        return NULL;
+        mybtm->data = (unsigned char *)malloc(mybtm->dataSize);
+        if (mybtm->data == NULL) {
+            printf("Error allocating memory for image data\n");
+            fclose(fp);
+            free(mybtm);
+            return NULL;
         }
 
-    fread(&(mybtm->header), sizeof(unsigned char), 54, fp); //je li 54 octets de l’en-tête d’un fichier bmp
-
-    mybtm -> width = *(unsigned int*)(mybtm->header + 18);  //on va chercher les valeur dans le header a leur place pour les mettre a leur place
-    mybtm -> height = *(unsigned int*)(mybtm->header + 22);
-    mybtm -> colorDepth = *(unsigned short*)(mybtm->header + 28);
-    mybtm -> dataSize = *(unsigned int*)(mybtm->header + 34);
-
-    if(mybtm->colorDepth == 8){  	// on lit les données et on les stock dans data
-    mybtm->data = (unsigned char *)malloc(mybtm->dataSize);
-    if(mybtm->data == NULL){
-    	printf("Error allocating memory for image data\n");
+        fread(mybtm->data, 1, mybtm->dataSize, fp);
+    } else {
+        printf("Unsupported color depth: %u\n", mybtm->colorDepth);
+        fclose(fp);
         free(mybtm);
         return NULL;
-        }
-    fread(mybtm->data, 1, mybtm->dataSize, fp); //fread(Adresse où stocker les données lues, taille de un élement, nb element a lire, fichier ouvert);
-    }
-    fclose(fp);
-    return mybtm;
     }
 
+    fclose(fp);
+    return mybtm;
+}
 
 
 
