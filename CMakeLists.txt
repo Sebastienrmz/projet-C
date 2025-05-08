@@ -1,9 +1,6 @@
 cmake_minimum_required(VERSION 3.25)
-project(projet_C)
+project(clion_projets C)
 
-set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD 99)
 
-add_executable(projet_C main.c brouillon.c)
-
-
-add_executable(main_scott fichier_scott/brouillon_scott.c)
+add_executable(clion_projets main.c brouillon.c)
