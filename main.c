@@ -3,59 +3,75 @@
 #include "bmp8.h"
 
 int main() {
-    char inputPath[] = "../barbara_gray.bmp";
-    t_bmp8 *img = bmp8_loadImage(inputPath);
-    if (img == NULL) return 1;
-
-    bmp8_printInfo(img);
-
     int choix;
-    do {
-        printf("\n--- Menu ---\n");
-        printf("1. Négatif\n");
-        printf("2. Modifier la luminosité\n");
-        printf("3. Appliquer un seuillage\n");
+
+    while (1) {
+        printf("\n=== MENU PRINCIPAL ===\n");
+        printf("1. Filtres 8 bits (barbara_gray.bmp)\n");
+        printf("2. Filtres 24 bits (flowers_color.bmp)\n");
         printf("0. Quitter\n");
         printf("Votre choix : ");
         scanf("%d", &choix);
 
-        switch (choix) {
-            case 1:
-                bmp8_negative(img);
-                bmp8_saveImage(img, "barbara_gray_negative.bmp");
-                printf("✅ Image enregistrée : barbara_gray_negative.bmp\n");
-                break;
+        if (choix == 0) break;
 
-            case 2: {
-                int value;
-                printf("Entrez la valeur de luminosité (-255 à +255) : ");
-                scanf("%d", &value);
-                bmp8_brightness(img, value);
-                bmp8_saveImage(img, "barbara_gray_brightness.bmp");
-                printf("✅ Image enregistrée : barbara_gray_brightness.bmp\n");
-                break;
+        if (choix == 1) {
+            t_bmp8 *img8 = bmp8_loadImage("../barbara_gray.bmp");
+            if (!img8) {
+                printf("Erreur : image 8 bits introuvable\n");
+                continue;
             }
 
-            case 3: {
-                int threshold;
-                printf("Entrez le seuil (0 à 255) : ");
-                scanf("%d", &threshold);
-                bmp8_threshold(img, threshold);
-                bmp8_saveImage(img, "barbara_gray_threshold.bmp");
-                printf("✅ Image enregistrée : barbara_gray_threshold.bmp\n");
-                break;
+            bmp8_printInfo(img8);
+
+            bmp8_negative(img8);
+            bmp8_saveImage(img8, "barbara_gray_negative.bmp");
+
+            bmp8_brightness(img8, 50);
+            bmp8_saveImage(img8, "barbara_gray_brightness.bmp");
+
+            bmp8_threshold(img8, 100);
+            bmp8_saveImage(img8, "barbara_gray_threshold.bmp");
+
+            bmp8_free(img8);
+            printf("✔️ Filtres 8 bits appliqués\n");
+
+        } else if (choix == 2) {
+            t_bmp24 *img24;
+
+            // Négatif
+            img24 = bmp24_loadImage("../flowers_color.bmp");
+            if (img24 == NULL) {
+                printf("Erreur : chargement image 24 bits a échoué\n");
+                return 1;
             }
+            if (!img24) {
+                printf("Erreur : image 24 bits introuvable\n");
+                continue;
+            }
+            bmp24_negative(img24);
+            bmp24_saveImage(img24, "flowers_negative.bmp");
+            bmp24_free(img24);
 
-            case 0:
-                printf("Fermeture du programme.\n");
-                break;
+            // Niveaux de gris
+            img24 = bmp24_loadImage("../flowers_color.bmp");
+            bmp24_grayscale(img24);
+            bmp24_saveImage(img24, "flowers_grayscale.bmp");
+            bmp24_free(img24);
 
-            default:
-                printf("❌ Choix invalide.\n");
+            // Luminosité
+            img24 = bmp24_loadImage("../flowers_color.bmp");
+            bmp24_brightness(img24, 50);
+            bmp24_saveImage(img24, "flowers_brightness.bmp");
+            bmp24_free(img24);
+
+            printf("✔️ Filtres 24 bits appliqués\n");
+
+        } else {
+            printf("Choix invalide.\n");
         }
+    }
 
-    } while (choix != 0);
-
-    bmp8_free(img);
+    printf("Au revoir !\n");
     return 0;
 }

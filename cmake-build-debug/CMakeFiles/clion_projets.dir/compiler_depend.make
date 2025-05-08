@@ -4,6 +4,8 @@
 CMakeFiles/clion_projets.dir/bmp8.c.obj: D:/clion_projets/bmp8.c \
   D:/CLion\ 2025.1/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/limits.h \
   D:/CLion\ 2025.1/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/mm_malloc.h \
+  D:/CLion\ 2025.1/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/stddef.h \
+  D:/CLion\ 2025.1/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/stdint.h \
   D:/CLion\ 2025.1/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/syslimits.h \
   D:/CLion\ 2025.1/bin/mingw/x86_64-w64-mingw32/include/_mingw.h \
   D:/CLion\ 2025.1/bin/mingw/x86_64-w64-mingw32/include/_mingw_mac.h \
@@ -19,6 +21,8 @@ CMakeFiles/clion_projets.dir/bmp8.c.obj: D:/clion_projets/bmp8.c \
   D:/CLion\ 2025.1/bin/mingw/x86_64-w64-mingw32/include/sdks/_mingw_ddk.h \
   D:/CLion\ 2025.1/bin/mingw/x86_64-w64-mingw32/include/sec_api/stdio_s.h \
   D:/CLion\ 2025.1/bin/mingw/x86_64-w64-mingw32/include/sec_api/stdlib_s.h \
+  D:/CLion\ 2025.1/bin/mingw/x86_64-w64-mingw32/include/stddef.h \
+  D:/CLion\ 2025.1/bin/mingw/x86_64-w64-mingw32/include/stdint.h \
   D:/CLion\ 2025.1/bin/mingw/x86_64-w64-mingw32/include/stdio.h \
   D:/CLion\ 2025.1/bin/mingw/x86_64-w64-mingw32/include/stdlib.h \
   D:/CLion\ 2025.1/bin/mingw/x86_64-w64-mingw32/include/swprintf.inl \
@@ -28,6 +32,8 @@ CMakeFiles/clion_projets.dir/bmp8.c.obj: D:/clion_projets/bmp8.c \
 CMakeFiles/clion_projets.dir/main.c.obj: D:/clion_projets/main.c \
   D:/CLion\ 2025.1/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/limits.h \
   D:/CLion\ 2025.1/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/mm_malloc.h \
+  D:/CLion\ 2025.1/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/stddef.h \
+  D:/CLion\ 2025.1/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/stdint.h \
   D:/CLion\ 2025.1/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/syslimits.h \
   D:/CLion\ 2025.1/bin/mingw/x86_64-w64-mingw32/include/_mingw.h \
   D:/CLion\ 2025.1/bin/mingw/x86_64-w64-mingw32/include/_mingw_mac.h \
@@ -43,12 +49,16 @@ CMakeFiles/clion_projets.dir/main.c.obj: D:/clion_projets/main.c \
   D:/CLion\ 2025.1/bin/mingw/x86_64-w64-mingw32/include/sdks/_mingw_ddk.h \
   D:/CLion\ 2025.1/bin/mingw/x86_64-w64-mingw32/include/sec_api/stdio_s.h \
   D:/CLion\ 2025.1/bin/mingw/x86_64-w64-mingw32/include/sec_api/stdlib_s.h \
+  D:/CLion\ 2025.1/bin/mingw/x86_64-w64-mingw32/include/stddef.h \
+  D:/CLion\ 2025.1/bin/mingw/x86_64-w64-mingw32/include/stdint.h \
   D:/CLion\ 2025.1/bin/mingw/x86_64-w64-mingw32/include/stdio.h \
   D:/CLion\ 2025.1/bin/mingw/x86_64-w64-mingw32/include/stdlib.h \
   D:/CLion\ 2025.1/bin/mingw/x86_64-w64-mingw32/include/swprintf.inl \
   D:/CLion\ 2025.1/bin/mingw/x86_64-w64-mingw32/include/vadefs.h \
   D:/clion_projets/bmp8.h
 
+
+D:/CLion\ 2025.1/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/stddef.h:
 
 D:/CLion\ 2025.1/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/limits.h:
 
@@ -60,9 +70,11 @@ D:/CLion\ 2025.1/bin/mingw/x86_64-w64-mingw32/include/sdks/_mingw_ddk.h:
 
 D:/CLion\ 2025.1/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/mm_malloc.h:
 
-D:/CLion\ 2025.1/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/syslimits.h:
+D:/CLion\ 2025.1/bin/mingw/x86_64-w64-mingw32/include/stddef.h:
 
-D:/CLion\ 2025.1/bin/mingw/x86_64-w64-mingw32/include/_mingw_secapi.h:
+D:/CLion\ 2025.1/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/stdint.h:
+
+D:/CLion\ 2025.1/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/syslimits.h:
 
 D:/CLion\ 2025.1/bin/mingw/x86_64-w64-mingw32/include/vadefs.h:
 
@@ -71,6 +83,8 @@ D:/CLion\ 2025.1/bin/mingw/x86_64-w64-mingw32/include/sec_api/stdlib_s.h:
 D:/CLion\ 2025.1/bin/mingw/x86_64-w64-mingw32/include/_mingw.h:
 
 D:/CLion\ 2025.1/bin/mingw/x86_64-w64-mingw32/include/_mingw_off_t.h:
+
+D:/CLion\ 2025.1/bin/mingw/x86_64-w64-mingw32/include/_mingw_secapi.h:
 
 D:/clion_projets/main.c:
 
@@ -89,6 +103,8 @@ D:/CLion\ 2025.1/bin/mingw/x86_64-w64-mingw32/include/limits.h:
 D:/CLion\ 2025.1/bin/mingw/x86_64-w64-mingw32/include/malloc.h:
 
 D:/CLion\ 2025.1/bin/mingw/x86_64-w64-mingw32/include/sec_api/stdio_s.h:
+
+D:/CLion\ 2025.1/bin/mingw/x86_64-w64-mingw32/include/stdint.h:
 
 D:/CLion\ 2025.1/bin/mingw/x86_64-w64-mingw32/include/stdio.h:
 

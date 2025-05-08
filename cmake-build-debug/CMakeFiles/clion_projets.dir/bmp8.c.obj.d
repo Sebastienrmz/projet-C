@@ -20,4 +20,8 @@ CMakeFiles/clion_projets.dir/bmp8.c.obj: D:\clion_projets\bmp8.c \
  D:/CLion\ 2025.1/bin/mingw/x86_64-w64-mingw32/include/malloc.h \
  D:/CLion\ 2025.1/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/mm_malloc.h \
  D:/CLion\ 2025.1/bin/mingw/x86_64-w64-mingw32/include/errno.h \
- D:\clion_projets\bmp8.h
+ D:\clion_projets\bmp8.h \
+ D:/CLion\ 2025.1/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/stdint.h \
+ D:/CLion\ 2025.1/bin/mingw/x86_64-w64-mingw32/include/stdint.h \
+ D:/CLion\ 2025.1/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/stddef.h \
+ D:/CLion\ 2025.1/bin/mingw/x86_64-w64-mingw32/include/stddef.h

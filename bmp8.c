@@ -199,3 +199,304 @@ void bmp8_applyFilter(t_bmp8 *img, float **kernel, int kernelSize) {
     free(tempData);
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+t_pixel ** bmp24_allocateDataPixels(int width, int height) {
+    t_pixel **pixels = malloc(height * sizeof(t_pixel *));
+    if (pixels == NULL) return NULL;
+
+    for (int i = 0; i < height; i++) {
+        pixels[i] = malloc(width * sizeof(t_pixel));
+        if (pixels[i] == NULL) {
+            // Libère déjà alloués
+            for (int j = 0; j < i; j++) free(pixels[j]);
+            free(pixels);
+            return NULL;
+        }
+    }
+
+    return pixels;
+}
+
+
+
+
+void bmp24_freeDataPixels(t_pixel **pixels, int height) {
+    if (pixels == NULL) return;
+
+    for (int i = 0; i < height; i++) {
+        free(pixels[i]);
+    }
+    free(pixels);
+}
+
+
+
+
+t_bmp24 * bmp24_allocate(int width, int height, int colorDepth) {
+    t_bmp24 *img = malloc(sizeof(t_bmp24));
+    if (img == NULL) return NULL;
+
+    img->width = width;
+    img->height = height;
+    img->colorDepth = colorDepth;
+    img->pixels = bmp24_allocateDataPixels(width, height);
+    if (img->pixels == NULL) {
+        free(img);
+        return NULL;
+    }
+
+    return img;
+}
+
+
+
+
+void bmp24_free(t_bmp24 *img) {
+    if (img == NULL) return;
+    bmp24_freeDataPixels(img->pixels, img->height);
+    free(img);
+}
+
+
+
+
+
+t_bmp24 *bmp24_loadImage(const char *filename) {
+    FILE *file = fopen(filename, "rb");
+    if (!file) {
+        printf("Erreur : impossible d'ouvrir le fichier %s\n", filename);
+        return NULL;
+    }
+
+    t_bmp24 *img = malloc(sizeof(t_bmp24));
+    if (!img) {
+        fclose(file);
+        return NULL;
+    }
+
+    // Lecture des 54 octets d'en-tête
+    file_rawRead(0, img->header, sizeof(uint8_t), 54, file);
+
+    // Lecture du header info
+    file_rawRead(HEADER_SIZE, &img->header_info, sizeof(t_bmp_info), 1, file);
+
+    img->width = img->header_info.width;
+    img->height = img->header_info.height;
+    img->colorDepth = img->header_info.bits;
+
+    img->pixels = bmp24_allocateDataPixels(img->width, img->height);
+    if (!img->pixels) {
+        fclose(file);
+        free(img);
+        return NULL;
+    }
+
+    // Extraire l'offset depuis le tableau header
+    uint32_t offset = *(uint32_t *)(img->header + BITMAP_OFFSET);
+
+    for (int y = 0; y < img->height; y++) {
+        for (int x = 0; x < img->width; x++) {
+            uint8_t color[3];
+            uint32_t pos = offset + ((img->height - 1 - y) * img->width + x) * 3;
+            file_rawRead(pos, color, sizeof(uint8_t), 3, file);
+            img->pixels[y][x].blue = color[0];
+            img->pixels[y][x].green = color[1];
+            img->pixels[y][x].red = color[2];
+        }
+    }
+
+    fclose(file);
+    return img;
+}
+
+
+
+
+
+void bmp24_saveImage(t_bmp24 *img, const char *filename) {
+    FILE *file = fopen(filename, "wb");
+    if (!file) {
+        printf("Erreur : impossible de créer le fichier %s\n", filename);
+        return;
+    }
+
+    // Écriture de l'en-tête
+    file_rawWrite(0, img->header, sizeof(uint8_t), 54, file);
+
+    // Écriture des informations supplémentaires
+    file_rawWrite(HEADER_SIZE, &img->header_info, sizeof(t_bmp_info), 1, file);
+
+    // Récupération de l'offset
+    uint32_t offset = *(uint32_t *)(img->header + BITMAP_OFFSET);
+
+    for (int y = 0; y < img->height; y++) {
+        for (int x = 0; x < img->width; x++) {
+            uint8_t color[3];
+            color[0] = img->pixels[y][x].blue;
+            color[1] = img->pixels[y][x].green;
+            color[2] = img->pixels[y][x].red;
+            uint32_t pos = offset + ((img->height - 1 - y) * img->width + x) * 3;
+            file_rawWrite(pos, color, sizeof(uint8_t), 3, file);
+        }
+    }
+
+    fclose(file);
+}
+
+
+
+
+
+
+#include <stdio.h>
+#include <stdint.h>
+
+/**
+ * @brief Positionne le curseur de fichier à la position `position` dans le fichier `file`,
+ * puis lit `n` éléments de taille `size` dans `buffer`.
+ *
+ * @param position La position à partir de laquelle il faut lire dans le fichier.
+ * @param buffer Le buffer où stocker les données lues.
+ * @param size La taille de chaque élément à lire.
+ * @param n Le nombre d’éléments à lire.
+ * @param file Le descripteur de fichier dans lequel il faut lire.
+ */
+void file_rawRead(uint32_t position, void *buffer, uint32_t size, size_t n, FILE *file) {
+    fseek(file, position, SEEK_SET);
+    fread(buffer, size, n, file);
+}
+
+/**
+ * @brief Positionne le curseur de fichier à la position `position` dans le fichier `file`,
+ * puis écrit `n` éléments de taille `size` depuis `buffer`.
+ *
+ * @param position La position à partir de laquelle il faut écrire dans le fichier.
+ * @param buffer Le buffer contenant les éléments à écrire.
+ * @param size La taille de chaque élément à écrire.
+ * @param n Le nombre d’éléments à écrire.
+ * @param file Le descripteur de fichier dans lequel il faut écrire.
+ */
+void file_rawWrite(uint32_t position, void *buffer, uint32_t size, size_t n, FILE *file) {
+    fseek(file, position, SEEK_SET);
+    fwrite(buffer, size, n, file);
+}
+
+
+void bmp24_readPixelValue(t_bmp24 *image, int x, int y, FILE *file) {
+    uint32_t position = BITMAP_OFFSET + ((image->height - 1 - y) * image->width + x) * 3;
+    uint8_t color[3];
+    file_rawRead(position, color, sizeof(uint8_t), 3, file);
+    image->pixels[y][x].blue = color[0];
+    image->pixels[y][x].green = color[1];
+    image->pixels[y][x].red = color[2];
+}
+
+void bmp24_readPixelData(t_bmp24 *image, FILE *file) {
+    for (int y = 0; y < image->height; y++) {
+        for (int x = 0; x < image->width; x++) {
+            bmp24_readPixelValue(image, x, y, file);
+        }
+    }
+}
+
+void bmp24_writePixelValue(t_bmp24 *image, int x, int y, FILE *file) {
+    uint32_t position = BITMAP_OFFSET + ((image->height - 1 - y) * image->width + x) * 3;
+    uint8_t color[3] = {
+        image->pixels[y][x].blue,
+        image->pixels[y][x].green,
+        image->pixels[y][x].red
+    };
+    file_rawWrite(position, color, sizeof(uint8_t), 3, file);
+}
+
+void bmp24_writePixelData(t_bmp24 *image, FILE *file) {
+    for (int y = 0; y < image->height; y++) {
+        for (int x = 0; x < image->width; x++) {
+            bmp24_writePixelValue(image, x, y, file);
+        }
+    }
+}
+
+
+
+
+void bmp24_negative(t_bmp24 *img) {
+    for (int y = 0; y < img->height; y++) {
+        for (int x = 0; x < img->width; x++) {
+            img->pixels[y][x].red = 255 - img->pixels[y][x].red;
+            img->pixels[y][x].green = 255 - img->pixels[y][x].green;
+            img->pixels[y][x].blue = 255 - img->pixels[y][x].blue;
+        }
+    }
+}
+
+void bmp24_grayscale(t_bmp24 *img) {
+    for (int y = 0; y < img->height; y++) {
+        for (int x = 0; x < img->width; x++) {
+            uint8_t r = img->pixels[y][x].red;
+            uint8_t g = img->pixels[y][x].green;
+            uint8_t b = img->pixels[y][x].blue;
+            uint8_t gray = (r + g + b) / 3;
+            img->pixels[y][x].red = gray;
+            img->pixels[y][x].green = gray;
+            img->pixels[y][x].blue = gray;
+        }
+    }
+}
+
+void bmp24_brightness(t_bmp24 *img, int value) {
+    for (int y = 0; y < img->height; y++) {
+        for (int x = 0; x < img->width; x++) {
+            int r = img->pixels[y][x].red + value;
+            int g = img->pixels[y][x].green + value;
+            int b = img->pixels[y][x].blue + value;
+
+            img->pixels[y][x].red = (r > 255) ? 255 : (r < 0 ? 0 : r);
+            img->pixels[y][x].green = (g > 255) ? 255 : (g < 0 ? 0 : g);
+            img->pixels[y][x].blue = (b > 255) ? 255 : (b < 0 ? 0 : b);
+        }
+    }
+}
+
+t_pixel bmp24_convolution(t_bmp24 *img, int x, int y, float **kernel, int kernelSize) {
+    int offset = kernelSize / 2;
+    float sumR = 0, sumG = 0, sumB = 0;
+
+    for (int ky = -offset; ky <= offset; ky++) {
+        for (int kx = -offset; kx <= offset; kx++) {
+            int px = x + kx;
+            int py = y + ky;
+
+            if (px >= 0 && px < img->width && py >= 0 && py < img->height) {
+                t_pixel p = img->pixels[py][px];
+                float coeff = kernel[ky + offset][kx + offset];
+                sumR += p.red * coeff;
+                sumG += p.green * coeff;
+                sumB += p.blue * coeff;
+            }
+        }
+    }
+
+    t_pixel result;
+    result.red = (sumR > 255) ? 255 : (sumR < 0 ? 0 : (uint8_t)sumR);
+    result.green = (sumG > 255) ? 255 : (sumG < 0 ? 0 : (uint8_t)sumG);
+    result.blue = (sumB > 255) ? 255 : (sumB < 0 ? 0 : (uint8_t)sumB);
+
+    return result;
+}
+
