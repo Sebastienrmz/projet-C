@@ -174,6 +174,6 @@ int main() {
         }
     }
 
-    printf("Fin du programme. ✅\n");
+    printf("Fin du programme. \n");
     return 0;
 }
