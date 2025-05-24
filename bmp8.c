@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "bmp8.h"
-
+#include <stdint.h>
 
 t_bmp8 * bmp8_loadImage(const char * filename) {
     FILE *fp = fopen(filename, "rb");
@@ -363,34 +363,16 @@ void bmp24_saveImage(t_bmp24 *img, const char *filename) {
 
 
 
-#include <stdio.h>
-#include <stdint.h>
 
-/**
- * @brief Positionne le curseur de fichier à la position `position` dans le fichier `file`,
- * puis lit `n` éléments de taille `size` dans `buffer`.
- *
- * @param position La position à partir de laquelle il faut lire dans le fichier.
- * @param buffer Le buffer où stocker les données lues.
- * @param size La taille de chaque élément à lire.
- * @param n Le nombre d’éléments à lire.
- * @param file Le descripteur de fichier dans lequel il faut lire.
- */
+
+
+
 void file_rawRead(uint32_t position, void *buffer, uint32_t size, size_t n, FILE *file) {
     fseek(file, position, SEEK_SET);
     fread(buffer, size, n, file);
 }
 
-/**
- * @brief Positionne le curseur de fichier à la position `position` dans le fichier `file`,
- * puis écrit `n` éléments de taille `size` depuis `buffer`.
- *
- * @param position La position à partir de laquelle il faut écrire dans le fichier.
- * @param buffer Le buffer contenant les éléments à écrire.
- * @param size La taille de chaque élément à écrire.
- * @param n Le nombre d’éléments à écrire.
- * @param file Le descripteur de fichier dans lequel il faut écrire.
- */
+
 void file_rawWrite(uint32_t position, void *buffer, uint32_t size, size_t n, FILE *file) {
     fseek(file, position, SEEK_SET);
     fwrite(buffer, size, n, file);
@@ -499,4 +481,85 @@ t_pixel bmp24_convolution(t_bmp24 *img, int x, int y, float **kernel, int kernel
 
     return result;
 }
+
+unsigned int * bmp8_computeHistogram(t_bmp8 *img) {
+    if (!img || !img->data) {
+        printf("Erreur : image ou data NULL\n");
+        return NULL;
+    }
+
+    unsigned int *hist = calloc(256, sizeof(unsigned int));
+    if (!hist) {
+        printf("Erreur d'allocation pour histogramme\n");
+        return NULL;
+    }
+
+    for (unsigned int i = 0; i < img->dataSize; i++) {
+        unsigned char pixel = img->data[i];
+        hist[pixel]++;
+    }
+
+    return hist;
+}
+
+
+
+
+#include <math.h>
+
+unsigned int * bmp8_computeCDF(unsigned int *hist) {
+    if (!hist) {
+        printf("Erreur : histogramme NULL\n");
+        return NULL;
+    }
+
+    unsigned int *cdf = malloc(256 * sizeof(unsigned int));
+    if (!cdf) {
+        printf("Erreur d'allocation pour CDF\n");
+        return NULL;
+    }
+
+    unsigned int total = 0;
+    for (int i = 0; i < 256; i++) {
+        total += hist[i];
+    }
+
+    unsigned int cdf_min = 0;
+    unsigned int sum = 0;
+    int found = 0;
+
+    for (int i = 0; i < 256; i++) {
+        sum += hist[i];
+        if (!found && sum > 0) {
+            cdf_min = sum;
+            found = 1;
+        }
+
+        if (total == cdf_min) {
+            cdf[i] = 0;
+        } else {
+            cdf[i] = round(((float)(sum - cdf_min) / (total - cdf_min)) * 255);
+        }
+    }
+
+    return cdf;
+}
+
+
+
+
+
+void bmp8_equalize(t_bmp8 *img, unsigned int *hist_eq) {
+    if (!img || !img->data || !hist_eq) {
+        printf("Erreur : image ou histogramme égalisé NULL\n");
+        return;
+    }
+
+    for (unsigned int i = 0; i < img->dataSize; i++) {
+        img->data[i] = (unsigned char)hist_eq[img->data[i]];
+    }
+}
+
+
+
 
