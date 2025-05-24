@@ -53,7 +53,7 @@ int main() {
             bmp24_saveImage(img24, "flowers_negative.bmp");
             bmp24_free(img24);
 
-            // Niveaux de gris
+            // Niveaux de grissss
             img24 = bmp24_loadImage("../flowers_color.bmp");
             bmp24_grayscale(img24);
             bmp24_saveImage(img24, "flowers_grayscale.bmp");
