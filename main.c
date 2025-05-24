@@ -1,12 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "bmp8.h"
+
+
+#define MAX_PATH 512
 
 void afficherMenuPrincipal() {
     printf("\n=== MENU PRINCIPAL ===\n");
-    printf("1. Filtres 8 bits (barbara_gray.bmp)\n");
-    printf("2. Filtres 24 bits (flowers_color.bmp)\n");
-    printf("3. Égalisation d'histogramme (8 bits uniquement)\n");
+    printf("1. Filtres 8 bits\n");
+    printf("2. Filtres 24 bits\n");
+    printf("3. Égalisation d'histogramme (8 bits seulement)\n");
     printf("0. Quitter\n");
     printf("Votre choix : ");
 }
@@ -31,29 +35,37 @@ void afficherMenuFiltres24() {
 
 int main() {
     int choix;
+    char path[MAX_PATH];
 
     while (1) {
         afficherMenuPrincipal();
         scanf("%d", &choix);
+        getchar(); // consomme le '\n'
 
         if (choix == 0) break;
 
         if (choix == 1) {
-            t_bmp8 *img8 = bmp8_loadImage("../barbara_gray.bmp");
+            // --- Partie 8 bits ---
+            printf("Chemin de l'image 8 bits : ");
+            fgets(path, MAX_PATH, stdin);
+            path[strcspn(path, "\n")] = '\0';
+
+            t_bmp8 *img8 = bmp8_loadImage(path);
             if (!img8) {
-                printf("Erreur : image 8 bits introuvable\n");
+                printf("Erreur : impossible de charger '%s'\n", path);
                 continue;
             }
 
             bmp8_printInfo(img8);
-            int filtre;
+
+            int filtre8;
             do {
                 afficherMenuFiltres8();
-                scanf("%d", &filtre);
-                switch (filtre) {
+                scanf("%d", &filtre8);
+                switch (filtre8) {
                     case 1:
                         bmp8_negative(img8);
-                        bmp8_saveImage(img8, "barbara_gray_negative.bmp");
+                        bmp8_saveImage(img8, "result_8_negative.bmp");
                         printf("✔️ Négatif appliqué\n");
                         break;
                     case 2: {
@@ -63,7 +75,7 @@ int main() {
                         if (val < -255) val = -255;
                         if (val > 255) val = 255;
                         bmp8_brightness(img8, val);
-                        bmp8_saveImage(img8, "barbara_gray_brightness.bmp");
+                        bmp8_saveImage(img8, "result_8_brightness.bmp");
                         printf("✔️ Luminosité appliquée\n");
                         break;
                     }
@@ -74,7 +86,7 @@ int main() {
                         if (seuil < 0) seuil = 0;
                         if (seuil > 255) seuil = 255;
                         bmp8_threshold(img8, seuil);
-                        bmp8_saveImage(img8, "barbara_gray_threshold.bmp");
+                        bmp8_saveImage(img8, "result_8_threshold.bmp");
                         printf("✔️ Seuillage appliqué\n");
                         break;
                     }
@@ -83,29 +95,35 @@ int main() {
                     default:
                         printf("Choix invalide.\n");
                 }
-            } while (filtre != 0);
+            } while (filtre8 != 0);
+
             bmp8_free(img8);
 
         } else if (choix == 2) {
-            int filtre;
+            // --- Partie 24 bits ---
+            printf("Chemin de l'image 24 bits : ");
+            fgets(path, MAX_PATH, stdin);
+            path[strcspn(path, "\n")] = '\0';
+
+            t_bmp24 *img24 = bmp24_loadImage(path);
+            if (!img24) {
+                printf("Erreur : impossible de charger '%s'\n", path);
+                continue;
+            }
+
+            int filtre24;
             do {
                 afficherMenuFiltres24();
-                scanf("%d", &filtre);
-                t_bmp24 *img24 = bmp24_loadImage("../flowers_color.bmp");
-                if (!img24) {
-                    printf("Erreur : image 24 bits introuvable\n");
-                    break;
-                }
-
-                switch (filtre) {
+                scanf("%d", &filtre24);
+                switch (filtre24) {
                     case 1:
                         bmp24_negative(img24);
-                        bmp24_saveImage(img24, "flowers_negative.bmp");
+                        bmp24_saveImage(img24, "result_24_negative.bmp");
                         printf("✔️ Négatif appliqué\n");
                         break;
                     case 2:
                         bmp24_grayscale(img24);
-                        bmp24_saveImage(img24, "flowers_grayscale.bmp");
+                        bmp24_saveImage(img24, "result_24_grayscale.bmp");
                         printf("✔️ Niveau de gris appliqué\n");
                         break;
                     case 3: {
@@ -115,7 +133,7 @@ int main() {
                         if (val < -255) val = -255;
                         if (val > 255) val = 255;
                         bmp24_brightness(img24, val);
-                        bmp24_saveImage(img24, "flowers_brightness.bmp");
+                        bmp24_saveImage(img24, "result_24_brightness.bmp");
                         printf("✔️ Luminosité appliquée\n");
                         break;
                     }
@@ -124,24 +142,28 @@ int main() {
                     default:
                         printf("Choix invalide.\n");
                 }
-                bmp24_free(img24);
-            } while (filtre != 0);
+            } while (filtre24 != 0);
+
+            bmp24_free(img24);
 
         } else if (choix == 3) {
-            t_bmp8 *img = bmp8_loadImage("../barbara_gray.bmp");
-            if (!img) {
-                printf("Erreur : image 8 bits introuvable\n");
+            // --- Égalisation histogramme (8 bits) ---
+            printf("Chemin de l'image 8 bits pour égalisation : ");
+            fgets(path, MAX_PATH, stdin);
+            path[strcspn(path, "\n")] = '\0';
+
+            t_bmp8 *imgH = bmp8_loadImage(path);
+            if (!imgH) {
+                printf("Erreur : impossible de charger '%s'\n", path);
                 continue;
             }
 
-            bmp8_saveImage(img, "result_original.bmp");
+            unsigned int *hist = bmp8_computeHistogram(imgH);
+            unsigned int *cdf  = bmp8_computeCDF(hist);
+            bmp8_equalize(imgH, cdf);
+            bmp8_saveImage(imgH, "result_equalized.bmp");
 
-            unsigned int *hist = bmp8_computeHistogram(img);
-            unsigned int *cdf = bmp8_computeCDF(hist);
-            bmp8_equalize(img, cdf);
-            bmp8_saveImage(img, "result_equalized.bmp");
-
-            bmp8_free(img);
+            bmp8_free(imgH);
             free(hist);
             free(cdf);
 
