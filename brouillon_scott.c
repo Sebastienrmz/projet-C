@@ -1,20 +1,8 @@
-#include <stdio.h>
+_void bmp24_freeDataPixels(t_pixel **pixels, int height) {
+    if (pixels == NULL) return;
 
-#include <stdio.h>void bmp8_free(t_bmp8 *img) {
-    // Vérifie si le pointeur image est valide
-    if (img == NULL) {
-        printf("Erreur : pointeur NULL dans bmp8_free\n");
-        return;
+    for (int i = 0; i < height; i++) {
+        free(pixels[i]);
     }
-
-// Libère d'abord les données d'image pour ne pas perdre leur adresse
-free(img->data);
-
-// Libère ensuite la structure elle-même
-free(img);
+    free(pixels);
 }
-
-#include <errno.h>
-
-
-v
