@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "bmp8.h"
 #include <stdint.h>
-
+#include <math.h>
 t_bmp8 * bmp8_loadImage(const char * filename) {
     FILE *fp = fopen(filename, "rb");
     if (fp == NULL) {
@@ -505,7 +505,7 @@ unsigned int * bmp8_computeHistogram(t_bmp8 *img) {
 
 
 
-#include <math.h>
+
 
 unsigned int * bmp8_computeCDF(unsigned int *hist) {
     if (!hist) {

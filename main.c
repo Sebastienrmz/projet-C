@@ -10,15 +10,15 @@ void afficherMenuPrincipal() {
     printf("\n=== MENU PRINCIPAL ===\n");
     printf("1. Filtres 8 bits\n");
     printf("2. Filtres 24 bits\n");
-    printf("3. Égalisation d'histogramme (8 bits seulement)\n");
+    printf("3. Egalisation d'histogramme (8 bits seulement)\n");
     printf("0. Quitter\n");
     printf("Votre choix : ");
 }
 
 void afficherMenuFiltres8() {
     printf("\n-- Filtres 8 bits --\n");
-    printf("1. Négatif\n");
-    printf("2. Luminosité (valeur entre -255 et 255)\n");
+    printf("1. Negatif\n");
+    printf("2. Luminosite (valeur entre -255 et 255)\n");
     printf("3. Seuillage (valeur entre 0 et 255)\n");
     printf("0. Retour\n");
     printf("Votre choix : ");
@@ -26,9 +26,9 @@ void afficherMenuFiltres8() {
 
 void afficherMenuFiltres24() {
     printf("\n-- Filtres 24 bits --\n");
-    printf("1. Négatif\n");
+    printf("1. Negatif\n");
     printf("2. Niveau de gris\n");
-    printf("3. Luminosité (valeur entre -255 et 255)\n");
+    printf("3. Luminosite (valeur entre -255 et 255)\n");
     printf("0. Retour\n");
     printf("Votre choix : ");
 }
@@ -40,12 +40,12 @@ int main() {
     while (1) {
         afficherMenuPrincipal();
         scanf("%d", &choix);
-        getchar(); // consomme le '\n'
+        getchar();
 
         if (choix == 0) break;
 
         if (choix == 1) {
-            // --- Partie 8 bits ---
+            //--- Partie 8 bits ---
             printf("Chemin de l'image 8 bits : ");
             fgets(path, MAX_PATH, stdin);
             path[strcspn(path, "\n")] = '\0';
@@ -65,18 +65,18 @@ int main() {
                 switch (filtre8) {
                     case 1:
                         bmp8_negative(img8);
-                        bmp8_saveImage(img8, "result_8_negative.bmp");
-                        printf("✔️ Négatif appliqué\n");
+                        bmp8_saveImage(img8, "../result_8_negative.bmp");
+                        printf(" Negatif appliqué\n");
                         break;
                     case 2: {
                         int val;
-                        printf("Valeur de luminosité [-255 ; 255] : ");
+                        printf("Valeur de luminosite [-255 ; 255] : ");
                         scanf("%d", &val);
                         if (val < -255) val = -255;
                         if (val > 255) val = 255;
                         bmp8_brightness(img8, val);
-                        bmp8_saveImage(img8, "result_8_brightness.bmp");
-                        printf("✔️ Luminosité appliquée\n");
+                        bmp8_saveImage(img8, "../result_8_brightness.bmp");
+                        printf(" Luminosite appliquee\n");
                         break;
                     }
                     case 3: {
@@ -86,8 +86,8 @@ int main() {
                         if (seuil < 0) seuil = 0;
                         if (seuil > 255) seuil = 255;
                         bmp8_threshold(img8, seuil);
-                        bmp8_saveImage(img8, "result_8_threshold.bmp");
-                        printf("✔️ Seuillage appliqué\n");
+                        bmp8_saveImage(img8, "../result_8_threshold.bmp");
+                        printf(" Seuillage applique\n");
                         break;
                     }
                     case 0:
@@ -100,7 +100,7 @@ int main() {
             bmp8_free(img8);
 
         } else if (choix == 2) {
-            // --- Partie 24 bits ---
+            //--- Partie 24 bits ---
             printf("Chemin de l'image 24 bits : ");
             fgets(path, MAX_PATH, stdin);
             path[strcspn(path, "\n")] = '\0';
@@ -118,23 +118,23 @@ int main() {
                 switch (filtre24) {
                     case 1:
                         bmp24_negative(img24);
-                        bmp24_saveImage(img24, "result_24_negative.bmp");
-                        printf("✔️ Négatif appliqué\n");
+                        bmp24_saveImage(img24, "../result_24_negative.bmp");
+                        printf("Negatif applique\n");
                         break;
                     case 2:
                         bmp24_grayscale(img24);
-                        bmp24_saveImage(img24, "result_24_grayscale.bmp");
-                        printf("✔️ Niveau de gris appliqué\n");
+                        bmp24_saveImage(img24, "../result_24_grayscale.bmp");
+                        printf(" Niveau de gris applique\n");
                         break;
                     case 3: {
                         int val;
-                        printf("Valeur de luminosité [-255 ; 255] : ");
+                        printf("Valeur de luminosite [-255 ; 255] : ");
                         scanf("%d", &val);
                         if (val < -255) val = -255;
                         if (val > 255) val = 255;
                         bmp24_brightness(img24, val);
-                        bmp24_saveImage(img24, "result_24_brightness.bmp");
-                        printf("✔️ Luminosité appliquée\n");
+                        bmp24_saveImage(img24, "../result_24_brightness.bmp");
+                        printf(" Luminosite appliquée\n");
                         break;
                     }
                     case 0:
@@ -147,8 +147,8 @@ int main() {
             bmp24_free(img24);
 
         } else if (choix == 3) {
-            // --- Égalisation histogramme (8 bits) ---
-            printf("Chemin de l'image 8 bits pour égalisation : ");
+            //--- Égalisation histogramme (8 bits) ---
+            printf("Chemin de l'image 8 bits pour egalisation : ");
             fgets(path, MAX_PATH, stdin);
             path[strcspn(path, "\n")] = '\0';
 
@@ -161,13 +161,13 @@ int main() {
             unsigned int *hist = bmp8_computeHistogram(imgH);
             unsigned int *cdf  = bmp8_computeCDF(hist);
             bmp8_equalize(imgH, cdf);
-            bmp8_saveImage(imgH, "result_equalized.bmp");
+            bmp8_saveImage(imgH, "../result_equalized.bmp");
 
             bmp8_free(imgH);
             free(hist);
             free(cdf);
 
-            printf("✔️ Égalisation d’histogramme terminée\n");
+            printf("Egalisation d’histogramme terminee\n");
 
         } else {
             printf("Choix invalide. Réessayez.\n");
