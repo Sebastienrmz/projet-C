@@ -134,7 +134,7 @@ int main() {
                         if (val > 255) val = 255;
                         bmp24_brightness(img24, val);
                         bmp24_saveImage(img24, "../result_24_brightness.bmp");
-                        printf(" Luminosite appliquée\n");
+                        printf(" Luminosite appliquee\n");
                         break;
                     }
                     case 0:
@@ -167,7 +167,7 @@ int main() {
             free(hist);
             free(cdf);
 
-            printf("Egalisation d’histogramme terminee\n");
+            printf("Egalisation d histogramme terminee\n");
 
         } else {
             printf("Choix invalide. Réessayez.\n");
