@@ -25,8 +25,18 @@ Application de filtres de base :
 ------------------------------
 Le programme fonctionne uniquement avec des fichiers .bmp non compressés (24 bits couleur ou 8
 bits niveaux de gris).
-AUTEURS :
+
+Bugs connus
+- Le chargement dimages tres lourdes peut prendre plusieurs secondes (li la lecture manuelle des
+  pixels).
+- L'affichage en temps reel nest pas intgrer pour visualiser le resultat, il faut ouvrir limage sauvegarde
+  avec un visualiseur BMP externe.
+- Seules les images BMP non compresses sont prises en charge.
+- Pas de verification avance sur la validit des fichiers fournis (lutilisateur doit entrer un chemin
+  correct).
+
 ------------------------------
+AUTEURS :
 - Sébastien RAMIREZ
 - Scott NGOUMELA
  
