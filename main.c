@@ -4,7 +4,7 @@
 #include "bmp8.h"
 
 
-#define MAX_PATH 512
+#define MAX_PATH 512// Taille maximale pour stocker le chemin d’un fichier
 
 void afficherMenuPrincipal() {
     printf("\n=== MENU PRINCIPAL ===\n");
@@ -14,7 +14,7 @@ void afficherMenuPrincipal() {
     printf("0. Quitter\n");
     printf("Votre choix : ");
 }
-
+// Affiche le menu principal du programme
 void afficherMenuFiltres8() {
     printf("\n-- Filtres 8 bits --\n");
     printf("1. Negatif\n");
@@ -23,7 +23,7 @@ void afficherMenuFiltres8() {
     printf("0. Retour\n");
     printf("Votre choix : ");
 }
-
+// Menu pour les traitements possibles sur les images 8 bits
 void afficherMenuFiltres24() {
     printf("\n-- Filtres 24 bits --\n");
     printf("1. Negatif\n");
@@ -32,7 +32,7 @@ void afficherMenuFiltres24() {
     printf("0. Retour\n");
     printf("Votre choix : ");
 }
-
+// Menu pour les traitements possibles sur les images 24 bits
 int main() {
     int choix;
     char path[MAX_PATH];
@@ -40,7 +40,7 @@ int main() {
     while (1) {
         afficherMenuPrincipal();
         scanf("%d", &choix);
-        getchar();
+        getchar();// Consomme le caractère '\n' laissé par scanf
 
         if (choix == 0) break;
 
@@ -48,7 +48,8 @@ int main() {
             //--- Partie 8 bits ---
             printf("Chemin de l'image 8 bits : ");
             fgets(path, MAX_PATH, stdin);
-            path[strcspn(path, "\n")] = '\0';
+            path[strcspn(path, "\n")] = '\0'; // Retire le '\n' final
+
 
             t_bmp8 *img8 = bmp8_loadImage(path);
             if (!img8) {
@@ -56,7 +57,7 @@ int main() {
                 continue;
             }
 
-            bmp8_printInfo(img8);
+            bmp8_printInfo(img8);// Affiche les infos de l’image
 
             int filtre8;
             do {
@@ -97,10 +98,10 @@ int main() {
                 }
             } while (filtre8 != 0);
 
-            bmp8_free(img8);
+            bmp8_free(img8);// Libération mémoire
 
         } else if (choix == 2) {
-            //--- Partie 24 bits ---
+            // Partie 24 bits
             printf("Chemin de l'image 24 bits : ");
             fgets(path, MAX_PATH, stdin);
             path[strcspn(path, "\n")] = '\0';
@@ -147,7 +148,7 @@ int main() {
             bmp24_free(img24);
 
         } else if (choix == 3) {
-            //--- Égalisation histogramme (8 bits) ---
+            // Égalisation histogramme (8 bits)
             printf("Chemin de l'image 8 bits pour egalisation : ");
             fgets(path, MAX_PATH, stdin);
             path[strcspn(path, "\n")] = '\0';
