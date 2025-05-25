@@ -222,7 +222,7 @@ t_pixel ** bmp24_allocateDataPixels(int width, int height) {
     for (int i = 0; i < height; i++) {
         pixels[i] = malloc(width * sizeof(t_pixel));
         if (pixels[i] == NULL) {
-            // Libère déjà alloués
+
             for (int j = 0; j < i; j++) free(pixels[j]);
             free(pixels);
             return NULL;
@@ -278,21 +278,21 @@ void bmp24_free(t_bmp24 *img) {
 
 t_bmp24 *bmp24_loadImage(const char *filename) {
     FILE *file = fopen(filename, "rb");
-    if (!file) {
+    if (file == NULL) {
         printf("Erreur : impossible d'ouvrir le fichier %s\n", filename);
         return NULL;
     }
 
     t_bmp24 *img = malloc(sizeof(t_bmp24));
-    if (!img) {
+    if (img == NULL) {
         fclose(file);
         return NULL;
     }
 
-    // Lecture des 54 octets d'en-tête
+    // Lecture de l'en-tête BMP (54 octets)
     file_rawRead(0, img->header, sizeof(uint8_t), 54, file);
 
-    // Lecture du header info
+    // Lecture des informations supplémentaires
     file_rawRead(HEADER_SIZE, &img->header_info, sizeof(t_bmp_info), 1, file);
 
     img->width = img->header_info.width;
@@ -300,20 +300,22 @@ t_bmp24 *bmp24_loadImage(const char *filename) {
     img->colorDepth = img->header_info.bits;
 
     img->pixels = bmp24_allocateDataPixels(img->width, img->height);
-    if (!img->pixels) {
-        fclose(file);
+    if (img->pixels == NULL) {
         free(img);
+        fclose(file);
         return NULL;
     }
 
-    // Extraire l'offset depuis le tableau header
+    // Récupération de l'offset des données pixels
     uint32_t offset = *(uint32_t *)(img->header + BITMAP_OFFSET);
 
+    // Lecture des pixels en partant du bas de l'image (format BMP)
     for (int y = 0; y < img->height; y++) {
         for (int x = 0; x < img->width; x++) {
             uint8_t color[3];
             uint32_t pos = offset + ((img->height - 1 - y) * img->width + x) * 3;
             file_rawRead(pos, color, sizeof(uint8_t), 3, file);
+
             img->pixels[y][x].blue = color[0];
             img->pixels[y][x].green = color[1];
             img->pixels[y][x].red = color[2];
@@ -328,33 +330,43 @@ t_bmp24 *bmp24_loadImage(const char *filename) {
 
 
 
+
 void bmp24_saveImage(t_bmp24 *img, const char *filename) {
+    // On tente d'ouvrir le fichier en mode écriture binaire
     FILE *file = fopen(filename, "wb");
     if (!file) {
+        // Si l'ouverture échoue, on affiche un message d'erreur
         printf("Erreur : impossible de créer le fichier %s\n", filename);
         return;
     }
 
-    // Écriture de l'en-tête
+    // On écrit d'abord l'en-tête BMP standard (54 octets)
     file_rawWrite(0, img->header, sizeof(uint8_t), 54, file);
 
-    // Écriture des informations supplémentaires
+    // Ensuite on écrit les informations additionnelles (dimensions, profondeur de couleur, etc.)
     file_rawWrite(HEADER_SIZE, &img->header_info, sizeof(t_bmp_info), 1, file);
 
-    // Récupération de l'offset
+    // On récupère la position dans le fichier où commencent réellement les données d'image
     uint32_t offset = *(uint32_t *)(img->header + BITMAP_OFFSET);
 
+    // On parcourt tous les pixels de l'image ligne par ligne
     for (int y = 0; y < img->height; y++) {
         for (int x = 0; x < img->width; x++) {
+            // Préparation des trois composantes de couleur dans l'ordre BGR
             uint8_t color[3];
             color[0] = img->pixels[y][x].blue;
             color[1] = img->pixels[y][x].green;
             color[2] = img->pixels[y][x].red;
+
+            // On calcule la position exacte où écrire ce pixel dans le fichier
             uint32_t pos = offset + ((img->height - 1 - y) * img->width + x) * 3;
+
+            // Et on écrit les 3 octets (1 pour chaque composante) au bon endroit
             file_rawWrite(pos, color, sizeof(uint8_t), 3, file);
         }
     }
 
+    // Une fois terminé, on ferme proprement le fichier
     fclose(file);
 }
 
@@ -367,10 +379,16 @@ void bmp24_saveImage(t_bmp24 *img, const char *filename) {
 
 
 
+
 void file_rawRead(uint32_t position, void *buffer, uint32_t size, size_t n, FILE *file) {
+    // On place le curseur du fichier à la position souhaitée (en octets depuis le début)
     fseek(file, position, SEEK_SET);
+
+    // Puis on lit 'n' éléments de taille 'size' chacun à partir de cette position,
+    // et on les stocke dans le buffer fourni
     fread(buffer, size, n, file);
 }
+
 
 
 void file_rawWrite(uint32_t position, void *buffer, uint32_t size, size_t n, FILE *file) {
@@ -380,35 +398,69 @@ void file_rawWrite(uint32_t position, void *buffer, uint32_t size, size_t n, FIL
 
 
 void bmp24_readPixelValue(t_bmp24 *image, int x, int y, FILE *file) {
+    // Calcul de la position du pixel dans le fichier BMP.
+    // On part de l'offset de l'image (BITMAP_OFFSET), puis on ajoute l'index du pixel dans le tableau.
+    // L'image BMP étant stockée à l’envers (de bas en haut), on inverse la ligne : (height - 1 - y).
     uint32_t position = BITMAP_OFFSET + ((image->height - 1 - y) * image->width + x) * 3;
+
+    // Tableau pour stocker temporairement les 3 composantes couleur (bleu, vert, rouge)
     uint8_t color[3];
+
+    // Lecture des 3 octets correspondant au pixel (BGR)
     file_rawRead(position, color, sizeof(uint8_t), 3, file);
-    image->pixels[y][x].blue = color[0];
-    image->pixels[y][x].green = color[1];
-    image->pixels[y][x].red = color[2];
+
+    // Attribution des couleurs au pixel (dans l’ordre standard RGB)
+    image->pixels[y][x].blue  = color[0]; // 1er octet : bleu
+    image->pixels[y][x].green = color[1]; // 2e octet : vert
+    image->pixels[y][x].red   = color[2]; // 3e octet : rouge
 }
 
+
 void bmp24_readPixelData(t_bmp24 *image, FILE *file) {
-    for (int y = 0; y < image->height; y++) {
-        for (int x = 0; x < image->width; x++) {
+    // Cette fonction parcourt chaque pixel de l'image
+    // et lit sa valeur RGB à partir du fichier BMP.
+
+    for (int y = 0; y < image->height; y++) {  // Parcourt chaque ligne (de haut en bas)
+        for (int x = 0; x < image->width; x++) {  // Parcourt chaque colonne de gauche à droite
+            // Lit la couleur du pixel situé à la position (x, y)
+            // et stocke les valeurs RGB dans la structure image->pixels
             bmp24_readPixelValue(image, x, y, file);
         }
     }
 }
 
+
 void bmp24_writePixelValue(t_bmp24 *image, int x, int y, FILE *file) {
+    // On calcule la position exacte dans le fichier BMP où se trouve le pixel (x, y).
+    // On part du bas de l'image (BMP stocke les lignes à l'envers),
+    // donc on inverse y avec (hauteur - 1 - y), puis on avance de x colonnes.
     uint32_t position = BITMAP_OFFSET + ((image->height - 1 - y) * image->width + x) * 3;
+
+    // On prépare les 3 composantes de couleur dans l'ordre : bleu, vert, rouge.
     uint8_t color[3] = {
         image->pixels[y][x].blue,
         image->pixels[y][x].green,
         image->pixels[y][x].red
     };
+
+    // Ensuite, on écrit ces 3 octets dans le fichier à la bonne position.
+    // Cela correspond à une couleur de pixel en format BMP 24 bits.
     file_rawWrite(position, color, sizeof(uint8_t), 3, file);
 }
 
+
 void bmp24_writePixelData(t_bmp24 *image, FILE *file) {
+    // Vérification basique : s'assurer que l'image et le fichier existent
+    if (!image || !file) {
+        printf("Erreur : image ou fichier invalide\n");
+        return;
+    }
+
+    // Parcours de chaque ligne de l'image
     for (int y = 0; y < image->height; y++) {
+        // Parcours de chaque pixel de la ligne
         for (int x = 0; x < image->width; x++) {
+            // On écrit la couleur du pixel (x, y) dans le fichier BMP
             bmp24_writePixelValue(image, x, y, file);
         }
     }
@@ -417,29 +469,58 @@ void bmp24_writePixelData(t_bmp24 *image, FILE *file) {
 
 
 
+// Cette fonction applique un filtre négatif à une image 24 bits.
+// Elle inverse chaque composante de couleur (rouge, vert, bleu) pixel par pixel.
 void bmp24_negative(t_bmp24 *img) {
+    // Vérifie que l'image est bien chargée
+    if (!img || !img->pixels) {
+        printf("Erreur : image invalide\n");
+        return;
+    }
+
+    // Parcours de chaque ligne de l'image
     for (int y = 0; y < img->height; y++) {
+        // Parcours de chaque pixel de la ligne
         for (int x = 0; x < img->width; x++) {
-            img->pixels[y][x].red = 255 - img->pixels[y][x].red;
+            // Inverse chaque composante de couleur (255 - valeur)
+            img->pixels[y][x].red   = 255 - img->pixels[y][x].red;
             img->pixels[y][x].green = 255 - img->pixels[y][x].green;
-            img->pixels[y][x].blue = 255 - img->pixels[y][x].blue;
+            img->pixels[y][x].blue  = 255 - img->pixels[y][x].blue;
         }
     }
 }
 
+
+// Cette fonction convertit une image 24 bits en niveaux de gris.
+// Elle calcule la moyenne des composantes R, G et B pour chaque pixel,
+// puis remplace chaque composante par cette moyenne.
 void bmp24_grayscale(t_bmp24 *img) {
+    // Vérifie que l'image est valide
+    if (!img || !img->pixels) {
+        printf("Erreur : image invalide ou non chargée\n");
+        return;
+    }
+
+    // Parcourt chaque ligne de l'image
     for (int y = 0; y < img->height; y++) {
+        // Parcourt chaque pixel de la ligne
         for (int x = 0; x < img->width; x++) {
+            // Récupère les valeurs des couleurs d'origine
             uint8_t r = img->pixels[y][x].red;
             uint8_t g = img->pixels[y][x].green;
             uint8_t b = img->pixels[y][x].blue;
-            uint8_t gray = (r + g + b) / 3;
-            img->pixels[y][x].red = gray;
-            img->pixels[y][x].green = gray;
-            img->pixels[y][x].blue = gray;
+
+            // Calcule une intensité moyenne (simple moyenne arithmétique)
+            uint8_t gris = (r + g + b) / 3;
+
+            // Applique cette intensité à chaque composante pour un ton de gris
+            img->pixels[y][x].red   = gris;
+            img->pixels[y][x].green = gris;
+            img->pixels[y][x].blue  = gris;
         }
     }
 }
+
 
 void bmp24_brightness(t_bmp24 *img, int value) {
     for (int y = 0; y < img->height; y++) {
@@ -482,24 +563,29 @@ t_pixel bmp24_convolution(t_bmp24 *img, int x, int y, float **kernel, int kernel
     return result;
 }
 
-unsigned int * bmp8_computeHistogram(t_bmp8 *img) {
+// Calcule l'histogramme d'une image 8 bits en niveaux de gris.
+// Retourne un tableau de 256 cases où chaque case correspond à la fréquence d’un niveau de gris (0 à 255).
+unsigned int *bmp8_computeHistogram(t_bmp8 *img) {
+    // Vérifie que l'image et ses données sont valides
     if (!img || !img->data) {
-        printf("Erreur : image ou data NULL\n");
+        printf("Erreur : image ou données de l'image NULL\n");
         return NULL;
     }
 
+    // Alloue dynamiquement un tableau de 256 entiers, initialisés à 0
     unsigned int *hist = calloc(256, sizeof(unsigned int));
     if (!hist) {
-        printf("Erreur d'allocation pour histogramme\n");
+        printf("Erreur : échec de l'allocation mémoire pour l'histogramme\n");
         return NULL;
     }
 
+    // Parcours de tous les pixels pour remplir l'histogramme
     for (unsigned int i = 0; i < img->dataSize; i++) {
-        unsigned char pixel = img->data[i];
-        hist[pixel]++;
+        unsigned char niveau = img->data[i];  // valeur du pixel (niveau de gris)
+        hist[niveau]++;                       // incrémente le compteur pour ce niveau
     }
 
-    return hist;
+    return hist;  // retourne le tableau rempli
 }
 
 
@@ -507,38 +593,50 @@ unsigned int * bmp8_computeHistogram(t_bmp8 *img) {
 
 
 
-unsigned int * bmp8_computeCDF(unsigned int *hist) {
+
+// Calcule la fonction de répartition cumulative (CDF) normalisée
+// à partir de l'histogramme donné en entrée.
+// Retourne un tableau de 256 entiers représentant la CDF égalisée.
+unsigned int *bmp8_computeCDF(unsigned int *hist) {
+    // Vérifie que l'histogramme existe
     if (!hist) {
         printf("Erreur : histogramme NULL\n");
         return NULL;
     }
 
+    // Allocation du tableau pour la CDF
     unsigned int *cdf = malloc(256 * sizeof(unsigned int));
     if (!cdf) {
-        printf("Erreur d'allocation pour CDF\n");
+        printf("Erreur d'allocation mémoire pour la CDF\n");
         return NULL;
     }
 
+    // Calcul du nombre total de pixels dans l’image
     unsigned int total = 0;
     for (int i = 0; i < 256; i++) {
         total += hist[i];
     }
 
+    // Recherche du premier niveau de gris non nul (cdf_min)
     unsigned int cdf_min = 0;
-    unsigned int sum = 0;
-    int found = 0;
+    unsigned int somme = 0;
+    int trouve = 0;
 
+    // Construction de la CDF normalisée (valeurs entre 0 et 255)
     for (int i = 0; i < 256; i++) {
-        sum += hist[i];
-        if (!found && sum > 0) {
-            cdf_min = sum;
-            found = 1;
+        somme += hist[i];
+
+        // Mémorise le premier niveau de gris non nul une seule fois
+        if (!trouve && somme > 0) {
+            cdf_min = somme;
+            trouve = 1;
         }
 
+        // Application de la formule d’égalisation de l’histogramme
         if (total == cdf_min) {
             cdf[i] = 0;
         } else {
-            cdf[i] = round(((float)(sum - cdf_min) / (total - cdf_min)) * 255);
+            cdf[i] = round(((float)(somme - cdf_min) / (total - cdf_min)) * 255);
         }
     }
 
@@ -549,14 +647,22 @@ unsigned int * bmp8_computeCDF(unsigned int *hist) {
 
 
 
+
+// Applique une égalisation d'histogramme à une image 8 bits.
+// Chaque pixel est remplacé par une valeur issue de l'histogramme égalisé.
 void bmp8_equalize(t_bmp8 *img, unsigned int *hist_eq) {
+    // Vérifie que tous les pointeurs nécessaires sont valides
     if (!img || !img->data || !hist_eq) {
-        printf("Erreur : image ou histogramme égalisé NULL\n");
+        printf("Erreur : image, données de l’image ou histogramme non valides.\n");
         return;
     }
 
+    // Parcours de tous les pixels de l'image
     for (unsigned int i = 0; i < img->dataSize; i++) {
-        img->data[i] = (unsigned char)hist_eq[img->data[i]];
+        // Remplace la valeur du pixel par la valeur correspondante dans la table d'égalisation
+        unsigned char ancienne_valeur = img->data[i];
+        unsigned char nouvelle_valeur = (unsigned char)hist_eq[ancienne_valeur];
+        img->data[i] = nouvelle_valeur;
     }
 }
 
