@@ -33,7 +33,7 @@ Bugs connus
   avec un visualiseur BMP externe.
 - Seules les images BMP non compresses sont prises en charge.
 - Pas de verification avance sur la validit des fichiers fournis (lutilisateur doit entrer un chemin
-  correct).
+  correct)..
 
 ------------------------------
 AUTEURS :
