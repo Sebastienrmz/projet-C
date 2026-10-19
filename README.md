@@ -31,18 +31,18 @@ Dans CLion, ouvrir le dossier et choisir la racine du projet comme répertoire d
 ## Exemple
 
 1. Choisir `1` pour les filtres 8 bits.
-2. Saisir `lena_gray.bmp`, sans guillemets.
+2. Saisir `images/lena_gray.bmp`, sans guillemets.
 3. Choisir `1` pour appliquer le négatif.
 4. Ouvrir `result_8_negative.bmp` avec un visualiseur d'images.
 
-`barbara_gray.bmp` est un autre exemple 8 bits. Utiliser `flowers_color.bmp` avec le menu 24 bits.
+`images/barbara_gray.bmp` est un autre exemple 8 bits. Utiliser `images/flowers_color.bmp` avec le menu 24 bits.
 Les résultats sont enregistrés dans le répertoire courant. Un filtre remplace son ancien fichier de résultat. Les filtres successifs s'appliquent à l'image déjà modifiée : recharger l'original pour repartir de zéro.
 
 ## Organisation du code
 
-- `main.c` : menus et saisies.
-- `bmp8.h` : structures et prototypes du projet.
-- `bmp8.c` : chargement, sauvegarde, filtres, convolution et histogramme.
+- `src/main.c` : menus et saisies.
+- `src/bmp8.h` : structures et prototypes du projet.
+- `src/bmp8.c` : chargement, sauvegarde, filtres, convolution et histogramme.
 
 Les structures d'origine sont conservées : tableau d'intensités pour le gris, tableau de lignes de pixels pour la couleur. Le négatif calcule `255 - valeur`. La luminosité ajoute une valeur puis borne le résultat entre 0 et 255. Le seuillage donne du blanc au-dessus du seuil et du noir sinon. Le gris couleur utilise la moyenne RGB.
 
@@ -51,6 +51,6 @@ Les structures d'origine sont conservées : tableau d'intensités pour le gris, 
 BMP Windows non compressés, en 8 bits avec palette grise ou en 24 bits. Les en-têtes DIB de 40, 52, 56, 108 et 124 octets sont reconnus. Les lignes avec remplissage et les hauteurs négatives sont prises en compte. La limite de chargement est de 256 Mio de pixels.
 
 La sauvegarde reconstruit un BMP standard : elle ne conserve pas les profils colorimétriques ni les autres métadonnées. Une erreur d'écriture interrompt le programme et peut laisser un résultat incomplet.
-Il n'y a pas de prévisualisation dans la console. Les fichiers `.idea/` et `cmake-build-debug/` sont des réglages et sorties de l'ancien environnement, pas les sources à modifier.
+Il n'y a pas de prévisualisation dans la console. Les sources sont dans `src/`, les images d'exemple dans `images/` et les résultats restent dans le répertoire courant. Le dossier `build/` est généré lors de la compilation et n'est pas suivi par Git.
 
 Les corrections portent sur les entrées, les fichiers BMP et les bornes de convolution ; les filtres et le fonctionnement du projet sont conservés.
