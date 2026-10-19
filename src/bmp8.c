@@ -20,6 +20,25 @@ static void write32(unsigned char *p, uint32_t value) {
     for (int i = 0; i < 4; ++i) p[i] = (unsigned char)(value >> (8 * i));
 }
 
+static int32_t read_signed32(const unsigned char *p) {
+    uint32_t value = read32(p);
+    return (int32_t)(value <= INT32_MAX ? (int64_t)value : (int64_t)value - INT64_C(4294967296));
+}
+
+static void fill_info(t_bmp24 *img) {
+    img->header_info.size = read32(img->header + 14);
+    img->header_info.width = read_signed32(img->header + 18);
+    img->header_info.height = read_signed32(img->header + 22);
+    img->header_info.planes = (uint16_t)read16(img->header + 26);
+    img->header_info.bits = (uint16_t)read16(img->header + 28);
+    img->header_info.compression = read32(img->header + 30);
+    img->header_info.imagesize = read32(img->header + 34);
+    img->header_info.xresolution = read_signed32(img->header + 38);
+    img->header_info.yresolution = read_signed32(img->header + 42);
+    img->header_info.ncolors = read32(img->header + 46);
+    img->header_info.importantcolors = read32(img->header + 50);
+}
+
 /* Valide les tailles avant toute allocation. Limite : 256 Mio de pixels. */
 static int read_header(FILE *file, unsigned char *header, unsigned int depth,
                        unsigned int *width, unsigned int *height) {
@@ -213,13 +232,13 @@ void bmp8_applyFilter(t_bmp8 *img, float **kernel, int kernelSize) {
 
     for (int y = n; y < height - n; y++) {
         for (int x = n; x < width - n; x++) {
-            float sum = 0.0;
+            double sum = 0.0;
 
             for (int i = -n; i <= n; i++) {
                 for (int j = -n; j <= n; j++) {
                     int pixel = img->data[(y + i) * width + (x + j)];
                     float coeff = kernel[i + n][j + n];
-                    sum += pixel * coeff;
+                    sum += pixel * (double)coeff;
                 }
             }
 
@@ -247,7 +266,7 @@ t_pixel ** bmp24_allocateDataPixels(int width, int height) {
     if (pixels == NULL) return NULL;
 
     for (int i = 0; i < height; i++) {
-        pixels[i] = malloc(width * sizeof(t_pixel));
+        pixels[i] = calloc((size_t)width, sizeof(t_pixel));
         if (pixels[i] == NULL) {
 
             for (int j = 0; j < i; j++) free(pixels[j]);
@@ -269,12 +288,17 @@ void bmp24_freeDataPixels(t_pixel **pixels, int height) {
 }
 
 t_bmp24 * bmp24_allocate(int width, int height, int colorDepth) {
+    if (width <= 0 || height <= 0 || colorDepth != 24 ||
+        (uint64_t)(unsigned int)width * (unsigned int)height * 3u > 256u * 1024u * 1024u)
+        return NULL;
     t_bmp24 *img = calloc(1, sizeof(t_bmp24));
     if (img == NULL) return NULL;
 
     img->width = width;
     img->height = height;
     img->colorDepth = colorDepth;
+    make_header(img->header, (unsigned int)width, (unsigned int)height, 24);
+    fill_info(img);
     img->pixels = bmp24_allocateDataPixels(width, height);
     if (img->pixels == NULL) {
         free(img);
@@ -299,6 +323,7 @@ t_bmp24 *bmp24_loadImage(const char *filename) {
     t_bmp24 *img = bmp24_allocate((int)width, (int)height, 24);
     if (!img) { fclose(file); return NULL; }
     memcpy(img->header, header, 54);
+    fill_info(img);
     bmp24_readPixelData(img, file);
     fclose(file);
     return img;
@@ -309,6 +334,7 @@ void bmp24_saveImage(t_bmp24 *img, const char *filename) {
     FILE *file = fopen(filename, "wb");
     if (!file) { perror(filename); exit(EXIT_FAILURE); }
     make_header(img->header, (unsigned int)img->width, (unsigned int)img->height, 24);
+    fill_info(img);
     file_rawWrite(0, img->header, 1, 54, file);
     bmp24_writePixelData(img, file);
     if (fclose(file) != 0) { perror(filename); exit(EXIT_FAILURE); }
@@ -479,7 +505,7 @@ t_pixel bmp24_convolution(t_bmp24 *img, int x, int y, float **kernel, int kernel
         for (int j = 0; j < kernelSize; ++j) if (!isfinite(kernel[k][j])) return black;
     }
     int offset = kernelSize / 2;
-    float sumR = 0, sumG = 0, sumB = 0;
+    double sumR = 0, sumG = 0, sumB = 0;
 
     for (int ky = -offset; ky <= offset; ky++) {
         for (int kx = -offset; kx <= offset; kx++) {
@@ -489,9 +515,9 @@ t_pixel bmp24_convolution(t_bmp24 *img, int x, int y, float **kernel, int kernel
             if (px >= 0 && px < img->width && py >= 0 && py < img->height) {
                 t_pixel p = img->pixels[py][px];
                 float coeff = kernel[ky + offset][kx + offset];
-                sumR += p.red * coeff;
-                sumG += p.green * coeff;
-                sumB += p.blue * coeff;
+                sumR += p.red * (double)coeff;
+                sumG += p.green * (double)coeff;
+                sumB += p.blue * (double)coeff;
             }
         }
     }

@@ -201,6 +201,13 @@ int main(void) {
 
             unsigned int *hist = bmp8_computeHistogram(imgH);
             unsigned int *cdf  = bmp8_computeCDF(hist);
+            if (!hist || !cdf) {
+                fprintf(stderr, "Memoire insuffisante pour l'egalisation.\n");
+                free(hist);
+                free(cdf);
+                bmp8_free(imgH);
+                continue;
+            }
             bmp8_equalize(imgH, cdf);
             bmp8_saveImage(imgH, "result_equalized.bmp");
 
