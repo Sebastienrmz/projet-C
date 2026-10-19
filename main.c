@@ -2,6 +2,29 @@
 #include <stdlib.h>
 #include <string.h>
 #include "bmp8.h"
+#include <errno.h>
+#include <ctype.h>
+#include <limits.h>
+
+static int lire_entier(void) {
+    char line[128], *end;
+    for (;;) {
+        if (!fgets(line, sizeof line, stdin)) { puts("Fin du programme."); exit(EXIT_SUCCESS); }
+        if (!strchr(line, '\n') && !feof(stdin)) {
+            int c;
+            while ((c = getchar()) != '\n' && c != EOF) {}
+            puts("Saisie trop longue."); continue;
+        }
+        errno = 0;
+        long n = strtol(line, &end, 10);
+        if (end != line && !errno) {
+            while (isspace((unsigned char)*end)) ++end;
+            if (!*end && n >= INT_MIN && n <= INT_MAX) return (int)n;
+        }
+        puts("Entrez un nombre entier :");
+    }
+}
+
 
 
 #define MAX_PATH 512// Taille maximale pour stocker le chemin d’un fichier
@@ -33,21 +56,26 @@ void afficherMenuFiltres24() {
     printf("Votre choix : ");
 }
 // Menu pour les traitements possibles sur les images 24 bits
-int main() {
+int main(void) {
     int choix;
     char path[MAX_PATH];
 
     while (1) {
         afficherMenuPrincipal();
-        scanf("%d", &choix);
-        getchar();// Consomme le caractère '\n' laissé par scanf
+        choix = lire_entier();
 
         if (choix == 0) break;
 
         if (choix == 1) {
             //--- Partie 8 bits ---
             printf("Chemin de l'image 8 bits : ");
-            fgets(path, MAX_PATH, stdin);
+            if (!fgets(path, MAX_PATH, stdin)) break;
+            if (!strchr(path, '\n') && !feof(stdin)) {
+                int c;
+                while ((c = getchar()) != '\n' && c != EOF) {}
+                puts("Chemin trop long.");
+                continue;
+            }
             path[strcspn(path, "\n")] = '\0'; // Retire le '\n' final
 
 
@@ -62,32 +90,32 @@ int main() {
             int filtre8;
             do {
                 afficherMenuFiltres8();
-                scanf("%d", &filtre8);
+                filtre8 = lire_entier();
                 switch (filtre8) {
                     case 1:
                         bmp8_negative(img8);
-                        bmp8_saveImage(img8, "../result_8_negative.bmp");
+                        bmp8_saveImage(img8, "result_8_negative.bmp");
                         printf(" Negatif appliqué\n");
                         break;
                     case 2: {
                         int val;
                         printf("Valeur de luminosite [-255 ; 255] : ");
-                        scanf("%d", &val);
+                        val = lire_entier();
                         if (val < -255) val = -255;
                         if (val > 255) val = 255;
                         bmp8_brightness(img8, val);
-                        bmp8_saveImage(img8, "../result_8_brightness.bmp");
+                        bmp8_saveImage(img8, "result_8_brightness.bmp");
                         printf(" Luminosite appliquee\n");
                         break;
                     }
                     case 3: {
                         int seuil;
                         printf("Valeur de seuillage [0 ; 255] : ");
-                        scanf("%d", &seuil);
+                        seuil = lire_entier();
                         if (seuil < 0) seuil = 0;
                         if (seuil > 255) seuil = 255;
                         bmp8_threshold(img8, seuil);
-                        bmp8_saveImage(img8, "../result_8_threshold.bmp");
+                        bmp8_saveImage(img8, "result_8_threshold.bmp");
                         printf(" Seuillage applique\n");
                         break;
                     }
@@ -103,7 +131,13 @@ int main() {
         } else if (choix == 2) {
             // Partie 24 bits
             printf("Chemin de l'image 24 bits : ");
-            fgets(path, MAX_PATH, stdin);
+            if (!fgets(path, MAX_PATH, stdin)) break;
+            if (!strchr(path, '\n') && !feof(stdin)) {
+                int c;
+                while ((c = getchar()) != '\n' && c != EOF) {}
+                puts("Chemin trop long.");
+                continue;
+            }
             path[strcspn(path, "\n")] = '\0';
 
             t_bmp24 *img24 = bmp24_loadImage(path);
@@ -115,26 +149,26 @@ int main() {
             int filtre24;
             do {
                 afficherMenuFiltres24();
-                scanf("%d", &filtre24);
+                filtre24 = lire_entier();
                 switch (filtre24) {
                     case 1:
                         bmp24_negative(img24);
-                        bmp24_saveImage(img24, "../result_24_negative.bmp");
+                        bmp24_saveImage(img24, "result_24_negative.bmp");
                         printf("Negatif applique\n");
                         break;
                     case 2:
                         bmp24_grayscale(img24);
-                        bmp24_saveImage(img24, "../result_24_grayscale.bmp");
+                        bmp24_saveImage(img24, "result_24_grayscale.bmp");
                         printf(" Niveau de gris applique\n");
                         break;
                     case 3: {
                         int val;
                         printf("Valeur de luminosite [-255 ; 255] : ");
-                        scanf("%d", &val);
+                        val = lire_entier();
                         if (val < -255) val = -255;
                         if (val > 255) val = 255;
                         bmp24_brightness(img24, val);
-                        bmp24_saveImage(img24, "../result_24_brightness.bmp");
+                        bmp24_saveImage(img24, "result_24_brightness.bmp");
                         printf(" Luminosite appliquee\n");
                         break;
                     }
@@ -150,7 +184,13 @@ int main() {
         } else if (choix == 3) {
             // Égalisation histogramme (8 bits)
             printf("Chemin de l'image 8 bits pour egalisation : ");
-            fgets(path, MAX_PATH, stdin);
+            if (!fgets(path, MAX_PATH, stdin)) break;
+            if (!strchr(path, '\n') && !feof(stdin)) {
+                int c;
+                while ((c = getchar()) != '\n' && c != EOF) {}
+                puts("Chemin trop long.");
+                continue;
+            }
             path[strcspn(path, "\n")] = '\0';
 
             t_bmp8 *imgH = bmp8_loadImage(path);
@@ -162,7 +202,7 @@ int main() {
             unsigned int *hist = bmp8_computeHistogram(imgH);
             unsigned int *cdf  = bmp8_computeCDF(hist);
             bmp8_equalize(imgH, cdf);
-            bmp8_saveImage(imgH, "../result_equalized.bmp");
+            bmp8_saveImage(imgH, "result_equalized.bmp");
 
             bmp8_free(imgH);
             free(hist);

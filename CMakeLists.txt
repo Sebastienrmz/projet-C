@@ -1,7 +1,13 @@
-cmake_minimum_required(VERSION 3.25)
-project(clion_projets C)
-
-
+cmake_minimum_required(VERSION 3.16)
+project(traitement_images C)
 set(CMAKE_C_STANDARD 99)
-
+set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_C_EXTENSIONS OFF)
 add_executable(clion_projets main.c bmp8.c)
+if(MSVC)
+    target_compile_definitions(clion_projets PRIVATE _CRT_SECURE_NO_WARNINGS)
+    target_compile_options(clion_projets PRIVATE /W4)
+else()
+    target_compile_options(clion_projets PRIVATE -Wall -Wextra -Wpedantic)
+    target_link_libraries(clion_projets PRIVATE m)
+endif()
