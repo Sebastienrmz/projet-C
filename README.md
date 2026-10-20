@@ -4,6 +4,14 @@ Projet de cours réalisé par **Sébastien Ramirez et Scott Ngoumela**.
 
 Le programme ouvre une image BMP et applique des filtres depuis un menu en console. Le traitement repose sur les valeurs des pixels, sans bibliothèque de traitement d'images.
 
+## Aperçu
+
+Exemple avec l'image couleur fournie dans le dépôt et le filtre négatif du programme : chaque composante devient `255 - valeur`.
+
+| Image originale | Négatif obtenu |
+| --- | --- |
+| ![Fleurs avant traitement](docs/captures/original.png) | ![Fleurs après le filtre négatif](docs/captures/negatif.png) |
+
 ## Fonctionnalités
 
 - Images 8 bits en niveaux de gris : négatif, luminosité, seuillage et égalisation d'histogramme.
