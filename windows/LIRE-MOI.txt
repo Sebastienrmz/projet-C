@@ -1,0 +1,13 @@
+VERSION WINDOWS 64 BITS
+
+1. Extraire entierement le fichier ZIP (clic droit > Extraire tout).
+2. Ouvrir le dossier extrait.
+3. Double-cliquer sur Tester.bat.
+
+Le lanceur propose deux negatifs de demonstration et le menu complet.
+Les resultats BMP sont crees a cote de Tester.bat. Un nouveau test remplace
+le resultat precedent. Les images originales restent dans images/.
+Le menu complet propose aussi luminosite, seuillage et egalisation.
+
+Le code et les credits de l’equipe sont dans README.md et sur GitHub :
+https://github.com/Sebastienrmz/projet-C

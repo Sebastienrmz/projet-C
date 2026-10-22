@@ -1,5 +1,13 @@
 # Traitement d'images BMP en C
 
+## Essayer rapidement sous Windows
+
+**[Télécharger la version Windows](https://github.com/Sebastienrmz/projet-C/releases/latest)**
+
+Télécharger le fichier **Filtres-images-Windows.zip** dans la rubrique **Assets**, faire **Extraire tout**, puis double-cliquer sur **Tester.bat**. Le programme et ses ressources sont fournis ensemble : aucun chemin à configurer.
+
+Aucun compilateur nécessaire pour cette version. Les instructions ci-dessous permettent aussi de compiler les sources.
+
 Projet de cours réalisé par **Sébastien Ramirez et Scott Ngoumela**.
 
 Le programme ouvre une image BMP et applique des filtres depuis un menu en console. Le traitement repose sur les valeurs des pixels, sans bibliothèque de traitement d'images.
