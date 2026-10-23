@@ -1,16 +1,16 @@
 # Traitement d'images BMP en C
 
+Projet de cours réalisé par **Sébastien Ramirez et Scott Ngoumela**.
+
+Le programme ouvre une image BMP et applique des filtres depuis un menu en console. Le traitement repose sur les valeurs des pixels, sans bibliothèque de traitement d'images.
+
 ## Essayer rapidement sous Windows
 
 **[Télécharger la version Windows](https://github.com/Sebastienrmz/projet-C/releases/latest)**
 
-Télécharger le fichier **Filtres-images-Windows.zip** dans la rubrique **Assets**, faire **Extraire tout**, puis double-cliquer sur **Tester.bat**. Le programme et ses ressources sont fournis ensemble : aucun chemin à configurer.
+Télécharger le fichier **Filtres-images-Windows.zip** dans la rubrique **Assets**, faire **Extraire tout**, puis double-cliquer sur **Tester.bat**. Garder les ressources dans le dossier extrait.
 
-Aucun compilateur nécessaire pour cette version. Les instructions ci-dessous permettent aussi de compiler les sources.
-
-Projet de cours réalisé par **Sébastien Ramirez et Scott Ngoumela**.
-
-Le programme ouvre une image BMP et applique des filtres depuis un menu en console. Le traitement repose sur les valeurs des pixels, sans bibliothèque de traitement d'images.
+La compilation depuis les sources est décrite ci-dessous.
 
 ## Aperçu
 
@@ -68,5 +68,3 @@ BMP Windows non compressés, en 8 bits avec palette grise ou en 24 bits. Les en-
 
 La sauvegarde reconstruit un BMP standard : elle ne conserve pas les profils colorimétriques ni les autres métadonnées. Une erreur d'écriture interrompt le programme et peut laisser un résultat incomplet.
 Il n'y a pas de prévisualisation dans la console. Les sources sont dans `src/`, les images d'exemple dans `images/` et les résultats restent dans le répertoire courant. Le dossier `build/` est généré lors de la compilation et n'est pas suivi par Git.
-
-Les corrections portent sur les entrées, les fichiers BMP et les bornes de convolution ; les filtres et le fonctionnement du projet sont conservés.
